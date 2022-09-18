@@ -7,7 +7,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class UDPServer extends Server {
@@ -22,15 +21,17 @@ public class UDPServer extends Server {
     public void startServer() {
         users = new ArrayList<>();
         aSocket = null;
-        try {
-            connectUsers();
-            startChat();
-        } catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Erro na comunicação com os usuários...");
-        } finally {
-            if (aSocket != null) {
-                aSocket.close();
+        while (true) {
+            try {
+                connectUsers();
+                startChat();
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Erro na comunicação com os usuários...");
+            } finally {
+                if (aSocket != null) {
+                    aSocket.close();
+                }
             }
         }
     }
@@ -46,7 +47,7 @@ public class UDPServer extends Server {
             aSocket.receive(request);
             log(request);
 
-            if (Arrays.toString(buffer).equals(Arrays.toString(Server.CONNECT.getBytes(StandardCharsets.UTF_8)))) {
+            if (buffer[0] == Server.CONNECT) {
                 UDPUser user = new UDPUser(request.getAddress(), request.getPort());
                 users.add(user);
 
@@ -66,8 +67,8 @@ public class UDPServer extends Server {
     private void startChat() throws IOException {
         byte[] request;
         byte[] response = new byte[1000];
-        DatagramPacket messenger = null;
-        DatagramPacket receiver = null;
+        DatagramPacket messenger;
+        DatagramPacket receiver;
         boolean quit = false;
 
         request = START_CHAT.getBytes(StandardCharsets.UTF_8);
@@ -81,6 +82,7 @@ public class UDPServer extends Server {
                 UDPUser anotherUser = getAnotherUser(i);
 
                 receiver = new DatagramPacket(response, response.length);
+                aSocket.receive(receiver);
 
                 while (!receiver.getAddress().equals(user.getIpAddress()) && receiver.getPort() != user.getPort()) {
                     aSocket.receive(receiver);
@@ -92,6 +94,7 @@ public class UDPServer extends Server {
                     request = END_CHAT.getBytes(StandardCharsets.UTF_8);
                     messenger = new DatagramPacket(request, request.length, anotherUser.getIpAddress(), anotherUser.getPort());
                     aSocket.send(messenger);
+                    log(messenger);
                     quit = true;
                     break;
                 }
@@ -99,6 +102,8 @@ public class UDPServer extends Server {
                 request = receiver.getData();
                 messenger = new DatagramPacket(request, request.length, anotherUser.getIpAddress(), anotherUser.getPort());
                 aSocket.send(messenger);
+                log(messenger);
+                response = new byte[1000];
             }
         }
     }

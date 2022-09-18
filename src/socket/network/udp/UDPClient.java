@@ -12,6 +12,8 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import static socket.network.model.Server.CONNECT;
+
 public class UDPClient extends Client {
 
     private DatagramSocket datagramSocket;
@@ -30,13 +32,19 @@ public class UDPClient extends Client {
             JOptionPane.showMessageDialog(null, "Até mais!");
         } catch (Exception e){
             e.printStackTrace();
-            System.out.println("Houve uma falha na comunicação com o servidor.");
+            JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void connectToServer() throws IOException {
+    private void connectToServer() {
         try {
-            sendMessage(Server.CONNECT);
+            InetAddress aHost = InetAddress.getByName(this.getIpAddress());
+            int serverPort = Server.PORT;
+            byte[] message = new byte[1];
+            message[0] = CONNECT;
+            DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
+            datagramSocket.send(request);
             getResponse();
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,10 +57,10 @@ public class UDPClient extends Client {
         int sair = SairEnum.NAO_SAIR.getCodigo();
         String[] options = Arrays.stream(SairEnum.values()).map(SairEnum::getOpcao).toArray(String[]::new);
 
-        while (sair != SairEnum.SAIR.getCodigo()) {
-            String strMessage = JOptionPane.showInputDialog(null, "Envie sua mensagem:");
-            sendMessage(strMessage);
+        JOptionPane.showMessageDialog(null, "Aguardando início", "Resposta",
+                JOptionPane.INFORMATION_MESSAGE);
 
+        while (sair != SairEnum.SAIR.getCodigo()) {
             String response = getResponse();
 
             JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
@@ -61,9 +69,14 @@ public class UDPClient extends Client {
             if (response.equals(Server.END_CHAT)) {
                 sair = SairEnum.SAIR.getCodigo();
             } else {
-                sair = JOptionPane.showOptionDialog(null, "Deseja sair?", "Chat", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE, null, options, 0);
-                sendMessage(Server.DISCONNECT);
+                String strMessage = JOptionPane.showInputDialog(null,
+                        "Envie sua mensagem: (Digite 'D' para sair)");
+                sendMessage(strMessage);
+
+                if (strMessage.equals(Server.DISCONNECT)) {
+                    sendMessage(Server.DISCONNECT);
+                    sair = SairEnum.SAIR.getCodigo();
+                }
             }
         }
     }
