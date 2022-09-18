@@ -1,4 +1,4 @@
-package socket.app.model;
+package socket.app.enums;
 
 public enum ConnectionEnum {
     UDP(0),

@@ -1,13 +1,16 @@
 package socket.network.udp;
 
+import socket.app.enums.SairEnum;
 import socket.network.model.Client;
 import socket.network.model.Server;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class UDPClient extends Client {
 
@@ -21,51 +24,63 @@ public class UDPClient extends Client {
     public void startClient() {
         try {
             datagramSocket = new DatagramSocket();
-            String strMessage = "Hello World";
-            byte[] message = strMessage.getBytes(StandardCharsets.UTF_8);
+            connectToServer();
+            startChat();
 
-            InetAddress aHost = InetAddress.getByName(this.getIpAddress());
-            int serverPort = Server.PORT;
-            DatagramPacket request =
-                    new DatagramPacket(message,  message.length, aHost, serverPort);
-            datagramSocket.send(request);
-
-            byte[] buffer = new byte[1000];
-            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-            datagramSocket.receive(reply);
-
-            JOptionPane.showMessageDialog(null, reply.getData());
-            System.out.println("Reply: " + new String(reply.getData()));
+            JOptionPane.showMessageDialog(null, "Até mais!");
         } catch (Exception e){
             e.printStackTrace();
             System.out.println("Houve uma falha na comunicação com o servidor.");
         }
     }
 
-    /*
-    public static void main(String args[]){
-        // args give message contents and destination hostname
-        DatagramSocket aSocket = null;
+    private void connectToServer() throws IOException {
         try {
-            aSocket = new DatagramSocket();
-            byte [] m = args[0].getBytes();
-            InetAddress aHost = InetAddress.getByName(args[1]);
-            int serverPort = Server.PORT;
-            DatagramPacket request =
-                    new DatagramPacket(m,  args[0].length(), aHost, serverPort);
-            aSocket.send(request);
-            byte[] buffer = new byte[1000];
-            DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-            aSocket.receive(reply);
-            System.out.println("Reply: " + new String(reply.getData()));
-
-        } catch (SocketException e){
-            System.out.println("Socket: " + e.getMessage());
-        } catch (IOException e){
-            System.out.println("IO: " + e.getMessage());
-        } finally {
-            if(aSocket != null)
-                aSocket.close();
+            sendMessage(Server.CONNECT);
+            getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao conectar com o servidor",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
         }
-    }*/
+    }
+
+    private void startChat() throws IOException {
+        int sair = SairEnum.NAO_SAIR.getCodigo();
+        String[] options = Arrays.stream(SairEnum.values()).map(SairEnum::getOpcao).toArray(String[]::new);
+
+        while (sair != SairEnum.SAIR.getCodigo()) {
+            String strMessage = JOptionPane.showInputDialog(null, "Envie sua mensagem:");
+            sendMessage(strMessage);
+
+            String response = getResponse();
+
+            JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
+            System.out.println("Reply: " + response);
+
+            if (response.equals(Server.END_CHAT)) {
+                sair = SairEnum.SAIR.getCodigo();
+            } else {
+                sair = JOptionPane.showOptionDialog(null, "Deseja sair?", "Chat", JOptionPane.YES_NO_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE, null, options, 0);
+                sendMessage(Server.DISCONNECT);
+            }
+        }
+    }
+
+    private void sendMessage(String strMessage) throws IOException {
+        byte[] message = strMessage.getBytes(StandardCharsets.UTF_8);
+        InetAddress aHost = InetAddress.getByName(this.getIpAddress());
+        int serverPort = Server.PORT;
+        DatagramPacket request = new DatagramPacket(message, message.length, aHost, serverPort);
+        datagramSocket.send(request);
+    }
+
+    private String getResponse() throws IOException {
+        byte[] answer = new byte[1000];
+        DatagramPacket reply = new DatagramPacket(answer, answer.length);
+        datagramSocket.receive(reply);
+
+        return new String(reply.getData());
+    }
 }

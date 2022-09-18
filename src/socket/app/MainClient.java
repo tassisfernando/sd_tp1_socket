@@ -1,6 +1,6 @@
 package socket.app;
 
-import socket.app.model.ConnectionEnum;
+import socket.app.enums.ConnectionEnum;
 import socket.network.model.Client;
 import socket.network.tcp.TCPClient;
 import socket.network.udp.UDPClient;
@@ -8,7 +8,7 @@ import socket.network.udp.UDPClient;
 import javax.swing.*;
 import java.util.Arrays;
 
-import static socket.app.model.ConnectionEnum.UDP;
+import static socket.app.enums.ConnectionEnum.UDP;
 
 public class MainClient {
 

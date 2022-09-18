@@ -1,15 +1,14 @@
 package socket.app;
 
-import socket.app.model.ConnectionEnum;
+import socket.app.enums.ConnectionEnum;
 import socket.network.model.Server;
-import socket.network.tcp.TCPClient;
 import socket.network.tcp.TCPServer;
 import socket.network.udp.UDPServer;
 
 import javax.swing.*;
 import java.util.Arrays;
 
-import static socket.app.model.ConnectionEnum.UDP;
+import static socket.app.enums.ConnectionEnum.UDP;
 
 public class MainServer {
 
