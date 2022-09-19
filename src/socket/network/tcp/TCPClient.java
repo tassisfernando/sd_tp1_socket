@@ -1,15 +1,13 @@
 package socket.network.tcp;
 
+import socket.app.enums.SairEnum;
 import socket.network.model.Client;
 import socket.network.model.Server;
 
 import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class TCPClient extends Client {
     private DataInputStream in;
@@ -21,62 +19,64 @@ public class TCPClient extends Client {
 
     @Override
     public void startClient() {
-        Socket socket = null;
+        try {
+            connectToServer();
+            startChat();
 
+        } catch (Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void connectToServer() {
+        Socket socket;
         try {
             socket = new Socket(this.getIpAddress(), Server.PORT);
 
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-
-            out.writeUTF("Hello World");      	// UTF is a string encoding see Sn. 4.4
-            String data = in.readUTF();	    // read a line of data from the stream
-            System.out.println("Received: "+ data) ;
-            JOptionPane.showMessageDialog(null, data);
-        } catch (UnknownHostException e){
-            System.out.println("Socket:"+e.getMessage());
-        } catch (EOFException e){
-            System.out.println("EOF:"+e.getMessage());
-        } catch (IOException e){
-            System.out.println("readline:"+e.getMessage());
-        } finally {
-            if (socket!=null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    System.out.println("close:" + e.getMessage());
-                }
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao conectar com o servidor",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-//    public static void main (String args[]) {
-//        // arguments supply message and hostname
-//        Socket s = null;
-//        try{
-//            int serverPort = 7896;
-//            s = new Socket(args[1], serverPort);
+    private void startChat() {
+        new Thread(() -> {
+            try {
+                int sair = SairEnum.NAO_SAIR.getCodigo();
 
-//            DataInputStream in = new DataInputStream( s.getInputStream());
-//            DataOutputStream out =new DataOutputStream( s.getOutputStream());
+                JOptionPane.showMessageDialog(null, "Aguardando início", "Resposta",
+                        JOptionPane.INFORMATION_MESSAGE);
 
-//            out.writeUTF(args[0]);      	// UTF is a string encoding see Sn. 4.4
-//            String data = in.readUTF();	    // read a line of data from the stream
-//            System.out.println("Received: "+ data) ;
-//        } catch (UnknownHostException e){
-//            System.out.println("Socket:"+e.getMessage());
-//        } catch (EOFException e){
-//            System.out.println("EOF:"+e.getMessage());
-//        } catch (IOException e){
-//            System.out.println("readline:"+e.getMessage());
-//        } finally {
-//            if(s!=null) {
-//                try {
-//                    s.close();
-//                } catch (IOException e) {
-//                    System.out.println("close:" + e.getMessage());
-//                }
-//            }
-//        }
-//    }
+                while (sair != SairEnum.SAIR.getCodigo()) {
+                    String response = in.readUTF();
+
+                    JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
+                    System.out.println("Reply: " + response);
+
+                    if (response.trim().equals(Server.END_CHAT)) {
+                        sair = SairEnum.SAIR.getCodigo();
+                    } else {
+                        String strMessage = JOptionPane.showInputDialog(null,
+                                "Envie sua mensagem: (Digite 'D' para sair)");
+
+                        if (strMessage.trim().equals(Server.DISCONNECT)) {
+                            out.writeUTF(Server.DISCONNECT);
+                            sair = SairEnum.SAIR.getCodigo();
+                        } else {
+                            out.writeUTF(strMessage);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
+                        "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
 }

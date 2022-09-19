@@ -2,11 +2,17 @@ package socket.network.tcp;
 
 import socket.network.model.Server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TCPServer extends Server {
+    private List<TCPUser> users;
+    private ServerSocket listenSocket;
 
     public TCPServer() {
         super();
@@ -14,30 +20,80 @@ public class TCPServer extends Server {
 
     @Override
     public void startServer() {
+        users = new ArrayList<>();
+
         try {
-            ServerSocket listenSocket = new ServerSocket(Server.PORT);
+            listenSocket = new ServerSocket(Server.PORT);
+
             while(true) {
-                Socket clientSocket = listenSocket.accept();
-                Connection c = new Connection(clientSocket);
+                connectUsers();
+                startChat();
             }
-        } catch (IOException e) {
-            System.out.println("Listen socket: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Erro na comunicação com os usuários...");        }
+    }
+
+    private void connectUsers() throws IOException {
+        int countUsers = 0;
+
+        while (countUsers < MAX_USERS) {
+            Socket socket = listenSocket.accept();
+            TCPUser user = new TCPUser(new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()));
+            users.add(user);
+            user.getOut().writeUTF(Server.WELCOME_MSG);
+            logUsers();
+            countUsers++;
         }
     }
 
+    private void startChat() throws IOException {
+        boolean quit = false;
 
-//    public static void main (String args[]) {
-//        try {
-//            int serverPort = Server.PORT; // the server port
-//            ServerSocket listenSocket = new ServerSocket(serverPort);
-//            while(true) {
-//                Socket clientSocket = listenSocket.accept();
-//                Connection c = new Connection(clientSocket);
-//            }
-//        } catch(IOException e) {
-//            System.out.println("Listen socket:"+e.getMessage());
-//        }
-//    }
+        users.get(0).getOut().writeUTF(START_CHAT);
+        logMessageEnviada(0, START_CHAT);
+
+        while (!quit) {
+            for (int i = 0; i < MAX_USERS; i++) {
+                TCPUser user = users.get(i);
+                TCPUser anotherUser = getAnotherUser(i);
+
+                String message = user.getIn().readUTF();
+                logMessage(i, message);
+
+                if (message.equals(DISCONNECT)) {
+                    anotherUser.getOut().writeUTF(END_CHAT);
+                    logMessageEnviada(getAnotherId(i), END_CHAT);
+                    quit = true;
+                    break;
+                }
+
+                anotherUser.getOut().writeUTF(message);
+                logMessageEnviada(getAnotherId(i), message);
+            }
+        }
+        users.clear();
+    }
+
+    private TCPUser getAnotherUser(int i) {
+        return i == 0 ? users.get(1) : users.get(0);
+    }
+
+    private int getAnotherId(int i) {
+        return i == 0 ? 1 : 0;
+    }
+
+    private void logUsers() {
+        System.out.println("Usuários conectados: " + users.toString());
+    }
+
+    private void logMessage(int user, String message) {
+        System.out.printf("Usuário %s diz: %s", user, message);
+    }
+
+    private void logMessageEnviada(int user, String message) {
+        System.out.printf("Mensagem enviada ao user %s: %s", user, message);
+    }
 }
 
 
