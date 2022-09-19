@@ -88,7 +88,7 @@ public class UDPServer extends Server {
                     aSocket.receive(receiver);
                 }
 
-                String message = new String(receiver.getData());
+                String message = new String(receiver.getData()).trim();
 
                 if (message.equals(DISCONNECT)) {
                     request = END_CHAT.getBytes(StandardCharsets.UTF_8);
@@ -106,6 +106,7 @@ public class UDPServer extends Server {
                 response = new byte[1000];
             }
         }
+        users.clear();
     }
 
     private UDPUser getAnotherUser(int i) {
