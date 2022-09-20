@@ -68,9 +68,9 @@ public class UDPClient extends Client {
                 sair = SairEnum.SAIR.getCodigo();
             } else {
                 String strMessage = JOptionPane.showInputDialog(null,
-                        "Envie sua mensagem: (Digite 'D' para sair)");
+                        "Envie sua mensagem: (Clique em cancelar para sair)");
 
-                if (strMessage.trim().equals(DISCONNECT)) {
+                if (strMessage == null) {
                     sendMessage(DISCONNECT);
                     sair = SairEnum.SAIR.getCodigo();
                 } else {

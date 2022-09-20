@@ -25,6 +25,8 @@ public class MainServer {
         int selected = JOptionPane.showOptionDialog(null, "Tipo de conexão:", "Server", JOptionPane.YES_NO_OPTION,
                 JOptionPane.INFORMATION_MESSAGE, null, conTypes, 0);
 
+        System.out.println("Tipo escolhido: " + ConnectionEnum.findConnectionById(selected).name());
+
         Server server = selected == UDP.getOption() ?
             new UDPServer() :
             new TCPServer();
