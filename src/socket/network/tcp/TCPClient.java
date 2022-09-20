@@ -9,6 +9,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 
+import static socket.app.model.MessageUtils.DISCONNECT;
+import static socket.app.model.MessageUtils.END_CHAT;
+
 public class TCPClient extends Client {
     private DataInputStream in;
     private DataOutputStream out;
@@ -58,14 +61,14 @@ public class TCPClient extends Client {
                     JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
                     System.out.println("Reply: " + response);
 
-                    if (response.trim().equals(Server.END_CHAT)) {
+                    if (response.trim().equals(END_CHAT)) {
                         sair = SairEnum.SAIR.getCodigo();
                     } else {
                         String strMessage = JOptionPane.showInputDialog(null,
                                 "Envie sua mensagem: (Digite 'D' para sair)");
 
-                        if (strMessage.trim().equals(Server.DISCONNECT)) {
-                            out.writeUTF(Server.DISCONNECT);
+                        if (strMessage.trim().equals(DISCONNECT)) {
+                            out.writeUTF(DISCONNECT);
                             sair = SairEnum.SAIR.getCodigo();
                         } else {
                             out.writeUTF(strMessage);

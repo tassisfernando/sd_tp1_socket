@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static socket.app.model.MessageUtils.*;
+
 public class UDPServer extends Server {
     private List<UDPUser> users;
     private DatagramSocket aSocket;
@@ -40,24 +42,24 @@ public class UDPServer extends Server {
         // create socket at agreed port
         aSocket = new DatagramSocket(Server.PORT);
         byte[] buffer = new byte[8];
-        int countUsers = 0;
+        int usersNum = 0;
 
-        while (countUsers < MAX_USERS) {
+        while (usersNum < MAX_USERS) {
             DatagramPacket request = new DatagramPacket(buffer, buffer.length);
             aSocket.receive(request);
             log(request);
 
-            if (buffer[0] == Server.CONNECT) {
+            if (buffer[0] == CONNECT) {
                 UDPUser user = new UDPUser(request.getAddress(), request.getPort());
                 users.add(user);
 
-                byte[] output = Server.WELCOME_MSG.getBytes(StandardCharsets.UTF_8);
+                byte[] output = WELCOME_MSG.getBytes(StandardCharsets.UTF_8);
                 DatagramPacket reply = new DatagramPacket(output, output.length, request.getAddress(), request.getPort());
                 aSocket.send(reply);
-                countUsers++;
+                usersNum++;
                 logUsers();
             } else {
-                byte[] output = Server.WAITING_USERS.getBytes(StandardCharsets.UTF_8);
+                byte[] output = WAITING_USERS.getBytes(StandardCharsets.UTF_8);
                 DatagramPacket reply = new DatagramPacket(output, output.length, request.getAddress(), request.getPort());
                 aSocket.send(reply);
             }
@@ -122,28 +124,4 @@ public class UDPServer extends Server {
     private void logUsers() {
         System.out.println("Usuários conectados: " + users.toString());
     }
-
-    /*
-    public static void main(String args[]){
-        DatagramSocket aSocket = null;
-        try {
-            aSocket = new DatagramSocket(Server.PORT);
-            // create socket at agreed port
-            byte[] buffer = new byte[1000];
-            while(true){
-                DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(request);
-                DatagramPacket reply = new DatagramPacket(request.getData(), request.getLength(),
-                        request.getAddress(), request.getPort());
-                aSocket.send(reply);
-            }
-        } catch (SocketException e){
-            System.out.println("Socket: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("IO: " + e.getMessage());
-        } finally {
-            if (aSocket != null)
-                aSocket.close();
-        }
-    }*/
 }

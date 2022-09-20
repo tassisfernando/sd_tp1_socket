@@ -1,5 +1,6 @@
 package socket.network.tcp;
 
+import socket.app.model.MessageUtils;
 import socket.network.model.Server;
 
 import java.io.DataInputStream;
@@ -9,6 +10,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+
+import static socket.app.model.MessageUtils.*;
 
 public class TCPServer extends Server {
     private List<TCPUser> users;
@@ -35,15 +38,15 @@ public class TCPServer extends Server {
     }
 
     private void connectUsers() throws IOException {
-        int countUsers = 0;
+        int usersNum = 0;
 
-        while (countUsers < MAX_USERS) {
+        while (usersNum < MAX_USERS) {
             Socket socket = listenSocket.accept();
             TCPUser user = new TCPUser(new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()));
             users.add(user);
-            user.getOut().writeUTF(Server.WELCOME_MSG);
+            user.getOut().writeUTF(WELCOME_MSG);
             logUsers();
-            countUsers++;
+            usersNum++;
         }
     }
 

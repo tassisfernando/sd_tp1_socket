@@ -11,7 +11,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 
-import static socket.network.model.Server.CONNECT;
+import static socket.app.model.MessageUtils.*;
 
 public class UDPClient extends Client {
 
@@ -64,14 +64,14 @@ public class UDPClient extends Client {
             JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
             System.out.println("Reply: " + response);
 
-            if (response.trim().equals(Server.END_CHAT)) {
+            if (response.trim().equals(END_CHAT)) {
                 sair = SairEnum.SAIR.getCodigo();
             } else {
                 String strMessage = JOptionPane.showInputDialog(null,
                         "Envie sua mensagem: (Digite 'D' para sair)");
 
-                if (strMessage.trim().equals(Server.DISCONNECT)) {
-                    sendMessage(Server.DISCONNECT);
+                if (strMessage.trim().equals(DISCONNECT)) {
+                    sendMessage(DISCONNECT);
                     sair = SairEnum.SAIR.getCodigo();
                 } else {
                     sendMessage(strMessage);
