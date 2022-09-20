@@ -31,6 +31,7 @@ public class TCPServer extends Server {
             while(true) {
                 connectUsers();
                 startChat();
+                logUsers();
             }
         } catch (Exception e) {
             e.printStackTrace();
