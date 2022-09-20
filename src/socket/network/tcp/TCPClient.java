@@ -25,7 +25,7 @@ public class TCPClient extends Client {
         try {
             connectToServer();
             startChat();
-
+            JOptionPane.showMessageDialog(null, "Até mais!");
         } catch (Exception e){
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
@@ -40,6 +40,7 @@ public class TCPClient extends Client {
 
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
+            in.readUTF();
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro ao conectar com o servidor",
@@ -48,38 +49,35 @@ public class TCPClient extends Client {
     }
 
     private void startChat() {
-        new Thread(() -> {
-            try {
-                int sair = SairEnum.NAO_SAIR.getCodigo();
+        try {
+            int sair = SairEnum.NAO_SAIR.getCodigo();
 
-                JOptionPane.showMessageDialog(null, "Aguardando início", "Resposta",
-                        JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Aguardando início", "Resposta",
+                    JOptionPane.INFORMATION_MESSAGE);
 
-                while (sair != SairEnum.SAIR.getCodigo()) {
-                    String response = in.readUTF();
+            while (sair != SairEnum.SAIR.getCodigo()) {
+                String response = in.readUTF();
 
-                    JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
-                    System.out.println("Reply: " + response);
+                JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
+                System.out.println("Reply: " + response);
 
-                    if (response.trim().equals(END_CHAT)) {
+                if (response.trim().equals(END_CHAT)) {
+                    sair = SairEnum.SAIR.getCodigo();
+                } else {
+                    String strMessage = JOptionPane.showInputDialog(null,
+                            "Envie sua mensagem: (Clique em cancelar para sair)");
+                    if (strMessage == null) {
+                        out.writeUTF(DISCONNECT);
                         sair = SairEnum.SAIR.getCodigo();
                     } else {
-                        String strMessage = JOptionPane.showInputDialog(null,
-                                "Envie sua mensagem: (Digite 'D' para sair)");
-
-                        if (strMessage.trim().equals(DISCONNECT)) {
-                            out.writeUTF(DISCONNECT);
-                            sair = SairEnum.SAIR.getCodigo();
-                        } else {
-                            out.writeUTF(strMessage);
-                        }
+                        out.writeUTF(strMessage);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
-                        "Erro", JOptionPane.ERROR_MESSAGE);
             }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

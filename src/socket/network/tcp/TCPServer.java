@@ -91,11 +91,11 @@ public class TCPServer extends Server {
     }
 
     private void logMessage(int user, String message) {
-        System.out.printf("Usuário %s diz: %s", user, message);
+        System.out.printf("Usuário %s diz: %s\n", user, message);
     }
 
     private void logMessageEnviada(int user, String message) {
-        System.out.printf("Mensagem enviada ao user %s: %s", user, message);
+        System.out.printf("Mensagem enviada ao user %s: %s\n", user, message);
     }
 }
 

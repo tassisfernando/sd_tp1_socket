@@ -27,7 +27,6 @@ public class UDPClient extends Client {
             datagramSocket = new DatagramSocket();
             connectToServer();
             startChat();
-
             JOptionPane.showMessageDialog(null, "Até mais!");
         } catch (Exception e){
             e.printStackTrace();
