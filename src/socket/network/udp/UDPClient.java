@@ -54,7 +54,7 @@ public class UDPClient extends Client {
     private void startChat() throws IOException {
         int sair = SairEnum.NAO_SAIR.getCodigo();
 
-        JOptionPane.showMessageDialog(null, "Aguardando início", "Resposta",
+        JOptionPane.showMessageDialog(null, WAITING_START, "Resposta",
                 JOptionPane.INFORMATION_MESSAGE);
 
         while (sair != SairEnum.SAIR.getCodigo()) {
@@ -66,14 +66,13 @@ public class UDPClient extends Client {
             if (response.trim().equals(END_CHAT)) {
                 sair = SairEnum.SAIR.getCodigo();
             } else {
-                String strMessage = JOptionPane.showInputDialog(null,
-                        "Envie sua mensagem: (Clique em cancelar para sair)");
-
+                String strMessage = JOptionPane.showInputDialog(null, SEND_MESSAGE);
                 if (strMessage == null) {
                     sendMessage(DISCONNECT);
                     sair = SairEnum.SAIR.getCodigo();
                 } else {
                     sendMessage(strMessage);
+                    JOptionPane.showMessageDialog(null, WAITING_RESPONSE, "Aguardando", JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         }
