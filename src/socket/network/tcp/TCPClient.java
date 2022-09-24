@@ -25,7 +25,7 @@ public class TCPClient extends Client {
             connectToServer();
             startChat();
             JOptionPane.showMessageDialog(null, "Até mais!");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
                     "Erro", JOptionPane.ERROR_MESSAGE);
@@ -51,8 +51,7 @@ public class TCPClient extends Client {
         try {
             int sair = SairEnum.NAO_SAIR.getCodigo();
 
-            JOptionPane.showMessageDialog(null, WAITING_START, "Resposta",
-                    JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, WAITING_START, "Resposta", JOptionPane.INFORMATION_MESSAGE);
 
             while (sair != SairEnum.SAIR.getCodigo()) {
                 String response = in.readUTF();

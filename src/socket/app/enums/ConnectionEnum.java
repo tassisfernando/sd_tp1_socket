@@ -12,14 +12,14 @@ public enum ConnectionEnum {
         this.option = option;
     }
 
-    public int getOption() {
-        return option;
-    }
-
     public static ConnectionEnum findConnectionById(int id) {
         return Arrays.stream(values())
                 .filter(connectionEnum -> connectionEnum.option == id)
                 .findFirst()
                 .orElse(UDP);
+    }
+
+    public int getOption() {
+        return option;
     }
 }

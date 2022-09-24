@@ -1,6 +1,5 @@
 package socket.network.tcp;
 
-import socket.app.model.MessageUtils;
 import socket.network.model.Server;
 
 import java.io.DataInputStream;
@@ -28,14 +27,15 @@ public class TCPServer extends Server {
         try {
             listenSocket = new ServerSocket(Server.PORT);
 
-            while(true) {
+            while (true) {
                 connectUsers();
                 startChat();
                 logUsers();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Erro na comunicação com os usuários...");        }
+            System.out.println("Erro na comunicação com os usuários...");
+        }
     }
 
     private void connectUsers() throws IOException {
@@ -76,7 +76,9 @@ public class TCPServer extends Server {
                 logMessageEnviada(getAnotherId(i), message);
             }
         }
+        System.out.println("---Chat finalizado");
         users.clear();
+        logUsers();
     }
 
     private TCPUser getAnotherUser(int i) {

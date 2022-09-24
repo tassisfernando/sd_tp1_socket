@@ -28,7 +28,7 @@ public class MainServer {
         System.out.println("Tipo escolhido: " + ConnectionEnum.findConnectionById(selected).name());
 
         Server server = selected == UDP.getOption() ?
-            new UDPServer() :
-            new TCPServer();
+                new UDPServer() :
+                new TCPServer();
     }
 }

@@ -108,7 +108,9 @@ public class UDPServer extends Server {
                 response = new byte[1000];
             }
         }
+        System.out.println("\n---Chat finalizado");
         users.clear();
+        logUsers();
     }
 
     private UDPUser getAnotherUser(int i) {

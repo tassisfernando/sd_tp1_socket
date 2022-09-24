@@ -28,7 +28,7 @@ public class UDPClient extends Client {
             connectToServer();
             startChat();
             JOptionPane.showMessageDialog(null, "Até mais!");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Houve uma falha na comunicação com o servidor",
                     "Erro", JOptionPane.ERROR_MESSAGE);
@@ -60,8 +60,8 @@ public class UDPClient extends Client {
         while (sair != SairEnum.SAIR.getCodigo()) {
             String response = getResponse();
 
-            JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
             System.out.println("Reply: " + response);
+            JOptionPane.showMessageDialog(null, response, "Resposta", JOptionPane.INFORMATION_MESSAGE);
 
             if (response.trim().equals(END_CHAT)) {
                 sair = SairEnum.SAIR.getCodigo();

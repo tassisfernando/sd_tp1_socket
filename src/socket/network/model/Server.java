@@ -7,5 +7,6 @@ public abstract class Server {
     public Server() {
         startServer();
     }
+
     public abstract void startServer();
 }
